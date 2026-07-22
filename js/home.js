@@ -4,7 +4,7 @@
    ============================================================ */
 
 import { PRODUCTS, COLLECTIONS, byCategory, featured, formatINR } from './data.js';
-import { icons, toast, observeReveals } from './ui.js';
+import { icons, toast, observeReveals, observeLazyVideos } from './ui.js';
 
 const PREFIX = '';
 
@@ -32,17 +32,16 @@ export function productCard(p, delay = 0) {
 
 function promoVideo(cat) {
   const c = COLLECTIONS[cat];
-  return `
+  return c.videos.map((src, i) => `
     <div class="promo-video reveal">
-      <video data-lazy data-src="${PREFIX}${c.video}" muted loop playsinline preload="none"
-             aria-label="${c.title} promotional film"
-             onerror="this.closest('.promo-video').classList.add('no-video'); this.remove();"></video>
+      <video data-lazy data-src="${PREFIX}${src}" muted loop playsinline preload="none"
+             aria-label="${c.title} promotional film ${i + 1}"></video>
       <div class="veil"></div>
-      <span class="tag">${c.tag}</span>
+      <span class="tag">${c.tags[i] || c.tags[0]}</span>
       <div class="placeholder-note" data-video-placeholder hidden>
-        Promotional film — drop ${c.video.split('/').pop()} into assets/videos/
+        Promotional film — drop ${src.split('/').pop()} into assets/videos/
       </div>
-    </div>`;
+    </div>`).join('');
 }
 
 function renderCollection(cat, gridId) {
@@ -68,6 +67,8 @@ export function mountHome() {
     });
   });
 
+  observeLazyVideos(document);
+
   renderCollection('watches', 'watchesGrid');
   renderCollection('perfumes', 'perfumesGrid');
   renderCollection('sunglasses', 'sunglassesGrid');
@@ -75,11 +76,19 @@ export function mountHome() {
   // Instagram tiles
   const insta = document.getElementById('instaGrid');
   if (insta) {
-    insta.innerHTML = Array.from({ length: 6 }, (_, i) => `
+    const tiles = [
+      ['michael-kors', 'Michael Kors watch'],
+      ['cool-water', 'Cool Water perfume'],
+      ['marc-jacobs', 'Marc Jacobs sunglasses'],
+      ['hublot', 'Hublot watch'],
+      ['hawas-ice', 'Hawas Ice perfume'],
+      ['cartier', 'Cartier sunglasses'],
+    ];
+    insta.innerHTML = tiles.map(([slug, alt], i) => `
       <a class="insta-item reveal" style="--reveal-delay:${i * 0.06}s"
          href="https://www.instagram.com/memon_.brothers.02" target="_blank" rel="noopener"
-         aria-label="Open Instagram post ${i + 1}">
-        <img src="${PREFIX}assets/products/insta-${i + 1}.jpg" alt="Memon Brothers Instagram showcase ${i + 1}" loading="lazy">
+         aria-label="${alt} — see more on Instagram">
+        <img src="${PREFIX}assets/products/${slug}.jpg" alt="${alt}" loading="lazy">
         ${icons.instagram}
       </a>`).join('');
   }

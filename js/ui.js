@@ -240,21 +240,50 @@ export function mountReveals() {
   }
 }
 
-/* ---------- Lazy video ---------- */
-export function mountLazyVideos() {
-  const videos = document.querySelectorAll('video[data-lazy]');
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((en) => {
-      const v = en.target;
-      if (en.isIntersecting) {
-        if (!v.src && v.dataset.src) { v.src = v.dataset.src; v.load(); }
-        v.play().catch(() => {});
-      } else {
-        v.pause();
-      }
+/* ---------- Lazy video ----------
+   Delegated observer + MutationObserver so videos injected
+   after boot (collection promos) are picked up too. */
+let lazyVideoObserver = null;
+let lazyVideoWatched = null;
+
+function handleVideoEntries(entries) {
+  entries.forEach((en) => {
+    const v = en.target;
+    if (en.isIntersecting) {
+      if (!v.getAttribute('src') && v.dataset.src) { v.src = v.dataset.src; v.load(); }
+      v.play().catch(() => {});
+    } else {
+      v.pause();
+    }
+  });
+}
+
+export function observeLazyVideos(scope = document) {
+  if (!('IntersectionObserver' in window)) {
+    scope.querySelectorAll('video[data-lazy]').forEach((v) => {
+      if (!v.getAttribute('src') && v.dataset.src) { v.src = v.dataset.src; v.load(); }
+      v.play().catch(() => {});
     });
-  }, { rootMargin: '200px' });
-  videos.forEach((v) => io.observe(v));
+    return;
+  }
+  if (!lazyVideoObserver) {
+    lazyVideoObserver = new IntersectionObserver(handleVideoEntries, { rootMargin: '300px' });
+  }
+  scope.querySelectorAll('video[data-lazy]').forEach((v) => lazyVideoObserver.observe(v));
+}
+
+export function mountLazyVideos() {
+  observeLazyVideos(document);
+  if (!lazyVideoWatched && 'MutationObserver' in window) {
+    lazyVideoWatched = new MutationObserver((muts) => {
+      muts.forEach((m) => m.addedNodes.forEach((n) => {
+        if (n.nodeType !== 1) return;
+        if (n.matches?.('video[data-lazy]')) observeLazyVideos(n.parentNode || document);
+        else if (n.querySelector?.('video[data-lazy]')) observeLazyVideos(n);
+      }));
+    });
+    lazyVideoWatched.observe(document.body, { childList: true, subtree: true });
+  }
 }
 
 /* ---------- Preloader ---------- */
