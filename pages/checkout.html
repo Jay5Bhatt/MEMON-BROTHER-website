@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — Memon Brothers</title>
+  <meta name="description" content="Complete your Memon Brothers order — pay via UPI and confirm on WhatsApp.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#190b1c">
+  <link rel="icon" type="image/jpeg" href="../assets/logo.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+  <div class="preloader" aria-hidden="true"><img src="../assets/logo.jpg" alt=""></div>
+  <header class="site-header" data-header data-root="../"></header>
+
+  <main id="checkoutRoot"></main>
+
+  <footer class="site-footer">
+    <div class="container footer-bottom" style="border-top:0">
+      <span>© <span id="year"></span> Memon Brothers. All rights reserved.</span>
+      <span>Secure manual UPI payment · No card details stored</span>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { bootChrome, mountReveals } from '../js/ui.js';
+    import { mountCheckout } from '../js/checkout.js';
+
+    bootChrome('');
+    mountCheckout();
+    mountReveals();
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
