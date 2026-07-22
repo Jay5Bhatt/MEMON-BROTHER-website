@@ -15,7 +15,7 @@ export const STORE = {
   whatsappDisplay: '+91 82001 56757',
   instagram: 'memon_.brothers.02',
   instagramUrl: 'https://www.instagram.com/memon_.brothers.02',
-  upiId: 'memonbrothers@upi', // TODO: replace with the real UPI ID
+  upiId: 'ayazmemon2114-1@oksbi',
   currency: 'INR',
   locale: 'en-IN',
 };
